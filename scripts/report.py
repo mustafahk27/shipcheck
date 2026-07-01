@@ -5,6 +5,7 @@ Usage:
   python3 report.py [path]            terminal report
   python3 report.py [path] --export   also writes shipcheck-report.md in [path]
   python3 report.py [path] --json     raw findings JSON instead of the report
+  python3 report.py [path] --fix      apply safe auto-fixes first, then report
 """
 
 import json
@@ -12,6 +13,7 @@ import os
 import sys
 from datetime import date
 
+import fix as autofix
 import rules
 
 RESET, BOLD, DIM = "\033[0m", "\033[1m", "\033[2m"
@@ -65,6 +67,9 @@ def render_terminal(result, root):
 
     out.append(RULE)
     if findings:
+        fixable = sum(1 for f in findings if f["rule"] in autofix.FIXABLE_RULES)
+        if fixable:
+            out.append(c(DIM, "🔧 {} finding(s) auto-fixable — run `/shipcheck --fix`".format(fixable)))
         out.append(c(DIM, "Run `/shipcheck --export` to save as shipcheck-report.md"))
     return "\n".join(out)
 
@@ -102,8 +107,19 @@ def main():
     args = [a for a in sys.argv[1:]]
     export = "--export" in args
     as_json = "--json" in args
+    apply_fixes = "--fix" in args
     paths = [a for a in args if not a.startswith("--")]
     root = paths[0] if paths else "."
+
+    if apply_fixes:
+        fixed = autofix.run(root)
+        if fixed["applied"]:
+            print("🔧 Auto-fixed {} finding(s):".format(len(fixed["applied"])))
+            for a in fixed["applied"]:
+                print("  ✅ " + a)
+            for s in fixed["skipped"]:
+                print("  ⚠️  " + s)
+            print()
 
     result = rules.run(root)
 
