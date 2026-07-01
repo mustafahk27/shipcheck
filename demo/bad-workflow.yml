@@ -1,0 +1,33 @@
+# Intentionally broken GitHub Actions workflow — showcases shipcheck rules.
+# Triggers: secret echoed to log, missing needs:, no dependency/layer caching,
+# draft PRs running the full pipeline, hardcoded token.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
+      - run: npm test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t myapp:latest .
+      - run: echo "Deploy token is ${{ secrets.DEPLOY_TOKEN }}"
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "NPM_TOKEN=npm_Ab12Cd34Ef56Gh78Ij90Kl12Mn34Op56Qr78" >> .npmrc
+      - run: ./scripts/deploy.sh

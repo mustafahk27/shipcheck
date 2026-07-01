@@ -1,0 +1,25 @@
+# Intentionally broken docker-compose — showcases shipcheck rules.
+# Triggers: no restart policy, :latest tag, DB port exposed, hardcoded password.
+
+services:
+  api:
+    build: .
+    image: myapp/api:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=super-secret-jwt-signing-key-123
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: admin12345
+      POSTGRES_DB: myapp
+
+  cache:
+    image: redis
+    ports:
+      - "6379:6379"

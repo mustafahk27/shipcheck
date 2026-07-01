@@ -1,0 +1,19 @@
+# Intentionally broken Dockerfile — showcases shipcheck rules.
+# Triggers: hardcoded secret, :latest tag, no USER, no HEALTHCHECK, no digest pin.
+
+FROM node:latest
+
+WORKDIR /app
+
+# CRITICAL: hardcoded API key baked into the image
+ENV OPENAI_API_KEY=sk-proj-Ab12Cd34Ef56Gh78Ij90Kl12Mn34Op56
+ENV DB_PASSWORD="hunter2hunter2"
+
+COPY package.json package-lock.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
