@@ -50,7 +50,7 @@ mkdir -p .claude/skills && cp -r path/to/shipcheck .claude/skills/shipcheck
 **From GitHub:**
 
 ```bash
-claude plugin install your-username/shipcheck
+claude plugin install mustafahk27/shipcheck
 ```
 
 Then in Claude Code:
