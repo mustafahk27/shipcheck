@@ -84,6 +84,12 @@ def check_env_committed(root, path):
 
     tracked = git("ls-files", "--error-unmatch", path)
     if tracked is None or tracked.returncode == 128:  # git missing or not a repo
+        try:
+            with open(os.path.join(root, ".gitignore"), encoding="utf-8") as gi:
+                if re.search(r"(?m)^\.env$", gi.read()):
+                    return []
+        except OSError:
+            pass
         msg = "{} present outside git — will be committed the moment this becomes a repo".format(path)
         fix = "Add .env to .gitignore before initializing git"
     elif tracked.returncode == 0:

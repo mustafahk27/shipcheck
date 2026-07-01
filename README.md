@@ -57,6 +57,7 @@ Then in Claude Code:
 
 ```
 /shipcheck              # audit the current repo
+/shipcheck --fix        # auto-fix what's mechanical, report what's left
 /shipcheck --export     # also write shipcheck-report.md for PR attachment
 ```
 
@@ -66,23 +67,43 @@ Or run it standalone — no Claude required, no dependencies (pure stdlib):
 python3 scripts/report.py /path/to/repo        # exits 1 on CRITICAL/HIGH → CI-gate friendly
 ```
 
+## Auto-fix
+
+`/shipcheck --fix` applies the fixes that are deterministic and safe, then
+reports what's left:
+
+```
+🔧 Auto-fixed 9 finding(s):
+  ✅ bad-compose.yml:5: restart: unless-stopped
+  ✅ bad-compose.yml:17: → - "127.0.0.1:5432:5432"
+  ✅ bad-workflow.yml:28: needs: [test, build]
+  ✅ bad-workflow.yml:28: if: github.event.pull_request.draft == false
+  ...
+```
+
+Judgment calls (version pins, `USER`, `HEALTHCHECK`, moving secrets) are left
+for you — or for Claude, which fixes them file-by-file when you ask. Standalone:
+`python3 scripts/fix.py <repo> --dry-run` previews without touching anything.
+
 ## Rules
 
-| Severity | Rule | Applies to |
-|---|---|---|
-| 🔴 CRITICAL | Hardcoded secrets / tokens (OpenAI, AWS, GitHub, Slack, npm, Stripe, Google, private keys, generic) | all files |
-| 🔴 CRITICAL | `.env` committed to git (or not gitignored) | git |
-| 🟠 HIGH | Unpinned `:latest` / missing image tag | Dockerfile, compose |
-| 🟠 HIGH | Container runs as root (no `USER`) | Dockerfile |
-| 🟠 HIGH | Missing `HEALTHCHECK` | Dockerfile |
-| 🟠 HIGH | No CPU/memory resource limits | K8s |
-| 🟠 HIGH | Secrets echoed into build logs | Actions, GitLab |
-| 🟡 MEDIUM | No restart policy | compose |
-| 🟡 MEDIUM | Database/cache ports published to host | compose |
-| 🟡 MEDIUM | Deploy job missing `needs:` | Actions |
-| 🟡 MEDIUM | No dependency / Docker layer caching | Actions, GitLab |
-| 🔵 LOW | Base image not pinned to digest | Dockerfile |
-| 🔵 LOW | Draft PRs run the full pipeline | Actions |
+🔧 = auto-fixable via `--fix`
+
+| Severity | Rule | Applies to | |
+|---|---|---|---|
+| 🔴 CRITICAL | Hardcoded secrets / tokens (OpenAI, AWS, GitHub, Slack, npm, Stripe, Google, private keys, generic) | all files | |
+| 🔴 CRITICAL | `.env` committed to git (or not gitignored) | git | 🔧 |
+| 🟠 HIGH | Unpinned `:latest` / missing image tag | Dockerfile, compose | |
+| 🟠 HIGH | Container runs as root (no `USER`) | Dockerfile | |
+| 🟠 HIGH | Missing `HEALTHCHECK` | Dockerfile | |
+| 🟠 HIGH | No CPU/memory resource limits | K8s | |
+| 🟠 HIGH | Secrets echoed into build logs | Actions, GitLab | |
+| 🟡 MEDIUM | No restart policy | compose | 🔧 |
+| 🟡 MEDIUM | Database/cache ports published to host | compose | 🔧 |
+| 🟡 MEDIUM | Deploy job missing `needs:` | Actions | 🔧 |
+| 🟡 MEDIUM | No dependency / Docker layer caching | Actions, GitLab | |
+| 🔵 LOW | Base image not pinned to digest | Dockerfile | |
+| 🔵 LOW | Draft PRs run the full pipeline | Actions | 🔧 |
 
 Full rationale and remediation patterns live in [`references/`](references/).
 
@@ -91,6 +112,7 @@ Full rationale and remediation patterns live in [`references/`](references/).
 ```
 scan.py  →  finds infra files (type detection by name + content)
 rules.py →  runs every rule, emits findings JSON with exact line numbers
+fix.py   →  applies safe deterministic fixes (bottom-up, idempotent)
 report.py → renders the terminal report / markdown export
 ```
 
