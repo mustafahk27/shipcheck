@@ -1,0 +1,14 @@
+{
+  "name": "shipcheck",
+  "displayName": "shipcheck",
+  "version": "0.2.0",
+  "description": "Pre-deployment infrastructure auditor — scans Dockerfiles, docker-compose, K8s manifests, GitHub Actions/GitLab CI, and .env files for secrets and misconfigurations, with auto-fix for mechanical findings.",
+  "author": {
+    "name": "Mustafa Khan",
+    "url": "https://github.com/mustafahk27"
+  },
+  "homepage": "https://github.com/mustafahk27/shipcheck",
+  "repository": "https://github.com/mustafahk27/shipcheck",
+  "license": "MIT",
+  "keywords": ["devops", "security", "docker", "kubernetes", "ci-cd", "audit", "linter", "pre-deployment"]
+}

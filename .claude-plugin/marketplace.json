@@ -1,0 +1,14 @@
+{
+  "name": "shipcheck",
+  "owner": {
+    "name": "Mustafa Khan",
+    "url": "https://github.com/mustafahk27"
+  },
+  "plugins": [
+    {
+      "name": "shipcheck",
+      "source": "./",
+      "description": "Pre-deployment infrastructure auditor — scans Dockerfiles, docker-compose, K8s manifests, GitHub Actions/GitLab CI, and .env files for secrets and misconfigurations, with auto-fix for mechanical findings."
+    }
+  ]
+}

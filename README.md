@@ -41,16 +41,24 @@ Run `/shipcheck --export` to save as shipcheck-report.md
 
 ## Install
 
-**Local (any project, no GitHub needed):**
+**Quickest — clone straight into your skills folder** (the repo root *is* the skill):
 
 ```bash
-mkdir -p .claude/skills && cp -r path/to/shipcheck .claude/skills/shipcheck
+# global: available in every project
+git clone https://github.com/mustafahk27/shipcheck.git ~/.claude/skills/shipcheck
+
+# or per-project
+git clone https://github.com/mustafahk27/shipcheck.git .claude/skills/shipcheck
 ```
 
-**From GitHub:**
+Restart Claude Code (skills are discovered at session start) and type `/shipcheck`.
+Update later with `git pull`.
 
-```bash
-claude plugin install mustafahk27/shipcheck
+**As a plugin** (via the marketplace flow, inside Claude Code):
+
+```
+/plugin marketplace add mustafahk27/shipcheck
+/plugin install shipcheck@shipcheck
 ```
 
 Then in Claude Code:
